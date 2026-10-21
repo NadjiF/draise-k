@@ -1,0 +1,237 @@
+[
+  {
+    "id": "plaquettes-disque-resine",
+    "nom": "Plaquettes de frein à disque résine",
+    "categorie": "freinage",
+    "prixCentimes": 1290,
+    "compatibilites": {
+      "typesFrein": ["disque-mecanique", "disque-hydraulique"]
+    },
+    "description": "Paire de plaquettes organiques, freinage progressif et silencieux. Format compatible étriers Shimano 2 pistons."
+  },
+  {
+    "id": "patins-v-brake",
+    "nom": "Patins de frein V-Brake",
+    "categorie": "freinage",
+    "prixCentimes": 990,
+    "compatibilites": {
+      "typesFrein": ["v-brake"]
+    },
+    "description": "Lot de 2 paires de patins 70 mm à tige filetée, gomme adaptée aux jantes aluminium."
+  },
+  {
+    "id": "disque-frein-160mm",
+    "nom": "Disque de frein 160 mm 6 trous",
+    "categorie": "freinage",
+    "prixCentimes": 2490,
+    "compatibilites": {
+      "typesFrein": ["disque-mecanique", "disque-hydraulique"]
+    },
+    "description": "Disque acier inoxydable 160 mm, fixation 6 trous, vis fournies."
+  },
+  {
+    "id": "kit-cable-gaine-frein",
+    "nom": "Kit câbles et gaines de frein",
+    "categorie": "freinage",
+    "prixCentimes": 1490,
+    "compatibilites": {
+      "typesFrein": ["v-brake", "etrier", "disque-mecanique"]
+    },
+    "description": "Kit avant et arrière : 2 câbles inox, 3 m de gaine et embouts. Pour freins à commande par câble."
+  },
+  {
+    "id": "chaine-11v",
+    "nom": "Chaîne 11 vitesses",
+    "categorie": "transmission",
+    "prixCentimes": 3290,
+    "compatibilites": {
+      "vitesses": [11]
+    },
+    "description": "Chaîne 116 maillons avec attache rapide, traitement anti-corrosion."
+  },
+  {
+    "id": "cassette-10v-11-32",
+    "nom": "Cassette 10 vitesses 11-32",
+    "categorie": "transmission",
+    "prixCentimes": 4490,
+    "compatibilites": {
+      "vitesses": [10]
+    },
+    "description": "Cassette acier 11-32 dents pour corps de roue libre Shimano HG, étagement polyvalent route et VTC."
+  },
+  {
+    "id": "derailleur-arriere-9v",
+    "nom": "Dérailleur arrière 9 vitesses",
+    "categorie": "transmission",
+    "prixCentimes": 3990,
+    "compatibilites": {
+      "vitesses": [9]
+    },
+    "description": "Dérailleur chape longue, capacité jusqu'à 36 dents, fixation directe sur patte de cadre."
+  },
+  {
+    "id": "plateau-mono-32d",
+    "nom": "Plateau mono 32 dents narrow-wide",
+    "categorie": "transmission",
+    "prixCentimes": 2990,
+    "compatibilites": {
+      "vitesses": [10, 11, 12]
+    },
+    "description": "Plateau aluminium à dents alternées pour transmission mono-plateau, fixation BCD 104."
+  },
+  {
+    "id": "chaine-9v",
+    "nom": "Chaîne 9 vitesses",
+    "categorie": "transmission",
+    "prixCentimes": 1990,
+    "compatibilites": {
+      "vitesses": [9]
+    },
+    "description": "Chaîne 114 maillons avec attache rapide, traitement anti-corrosion."
+  },
+  {
+    "id": "cassette-9v-11-34",
+    "nom": "Cassette 9 vitesses 11-34",
+    "categorie": "transmission",
+    "prixCentimes": 2990,
+    "compatibilites": {
+      "vitesses": [9]
+    },
+    "description": "Cassette acier 11-34 dents pour corps de roue libre Shimano HG, adaptée au dérailleur 9 vitesses (capacité 36 dents)."
+  },
+  {
+    "id": "cassette-11v-11-34",
+    "nom": "Cassette 11 vitesses 11-34",
+    "categorie": "transmission",
+    "prixCentimes": 6490,
+    "compatibilites": {
+      "vitesses": [11]
+    },
+    "description": "Cassette acier 11-34 dents pour corps de roue libre Shimano HG 11 vitesses, large plage pour route et gravel."
+  },
+  {
+    "id": "pneu-route-700x28",
+    "nom": "Pneu route 700x28",
+    "categorie": "pneus-chambres",
+    "prixCentimes": 4490,
+    "compatibilites": {
+      "taillesRoue": ["700c"]
+    },
+    "description": "Pneu tringle souple avec bande anti-crevaison, bon compromis rendement et confort."
+  },
+  {
+    "id": "pneu-vtt-29x2-30",
+    "nom": "Pneu VTT 29x2.30 Tubeless Ready",
+    "categorie": "pneus-chambres",
+    "prixCentimes": 5490,
+    "compatibilites": {
+      "taillesRoue": ["29"]
+    },
+    "description": "Pneu tout-terrain à crampons polyvalents, montage tubeless ou avec chambre à air."
+  },
+  {
+    "id": "chambre-air-26",
+    "nom": "Chambre à air 26x1.75-2.125",
+    "categorie": "pneus-chambres",
+    "prixCentimes": 690,
+    "compatibilites": {
+      "taillesRoue": ["26"]
+    },
+    "description": "Chambre en butyle, valve Schrader 40 mm."
+  },
+  {
+    "id": "chambre-air-700c-presta",
+    "nom": "Chambre à air 700x25-32 Presta",
+    "categorie": "pneus-chambres",
+    "prixCentimes": 790,
+    "compatibilites": {
+      "taillesRoue": ["700c"]
+    },
+    "description": "Chambre en butyle, valve Presta 48 mm, pour pneus route et ville de 25 à 32 mm."
+  },
+  {
+    "id": "chambre-air-29",
+    "nom": "Chambre à air 29x2.10-2.40",
+    "categorie": "pneus-chambres",
+    "prixCentimes": 890,
+    "compatibilites": {
+      "taillesRoue": ["29"]
+    },
+    "description": "Chambre en butyle, valve Presta 48 mm, pour pneus VTT de 2.10 à 2.40 pouces."
+  },
+  {
+    "id": "kit-reparation-crevaison",
+    "nom": "Kit de réparation crevaison",
+    "categorie": "pneus-chambres",
+    "prixCentimes": 790,
+    "compatibilites": {},
+    "description": "Rustines autocollantes et classiques, dissolution, râpe et 2 démonte-pneus."
+  },
+  {
+    "id": "kit-eclairage-usb",
+    "nom": "Kit éclairage avant/arrière USB",
+    "categorie": "eclairage",
+    "prixCentimes": 2990,
+    "compatibilites": {},
+    "description": "Phare 200 lumens et feu arrière rechargeables par USB-C, fixation élastique sans outil."
+  },
+  {
+    "id": "phare-avant-800lm",
+    "nom": "Phare avant 800 lumens",
+    "categorie": "eclairage",
+    "prixCentimes": 5990,
+    "compatibilites": {},
+    "description": "Phare rechargeable avec faisceau anti-éblouissement, 5 modes et jusqu'à 2 h en pleine puissance."
+  },
+  {
+    "id": "feu-arriere-led",
+    "nom": "Feu arrière LED",
+    "categorie": "eclairage",
+    "prixCentimes": 1990,
+    "compatibilites": {},
+    "description": "Feu arrière rechargeable, visible à 500 m, fixation tige de selle."
+  },
+  {
+    "id": "roue-avant-dynamo-700c",
+    "nom": "Roue avant 700c à moyeu dynamo",
+    "categorie": "eclairage",
+    "prixCentimes": 11990,
+    "compatibilites": {
+      "taillesRoue": ["700c"],
+      "typesFrein": ["v-brake", "etrier"]
+    },
+    "description": "Roue montée avec moyeu dynamo 6 V / 3 W pour un éclairage sans batterie. Jante pour freins à patins."
+  },
+  {
+    "id": "antivol-u",
+    "nom": "Antivol en U",
+    "categorie": "accessoires",
+    "prixCentimes": 4490,
+    "compatibilites": {},
+    "description": "Antivol en acier trempé 14 mm, support de cadre et 2 clés fournis."
+  },
+  {
+    "id": "pompe-a-pied",
+    "nom": "Pompe à pied avec manomètre",
+    "categorie": "accessoires",
+    "prixCentimes": 3490,
+    "compatibilites": {},
+    "description": "Pompe jusqu'à 11 bars, embout double compatible valves Presta et Schrader."
+  },
+  {
+    "id": "porte-bidon-alu",
+    "nom": "Porte-bidon aluminium",
+    "categorie": "accessoires",
+    "prixCentimes": 890,
+    "compatibilites": {},
+    "description": "Porte-bidon léger pour bidons standards, vis de fixation incluses."
+  },
+  {
+    "id": "sacoche-selle",
+    "nom": "Sacoche de selle 0,8 L",
+    "categorie": "accessoires",
+    "prixCentimes": 1990,
+    "compatibilites": {},
+    "description": "Sacoche déperlante avec fixation à scratch, idéale pour chambre à air et outils."
+  }
+]
