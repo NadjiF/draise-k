@@ -1,4 +1,4 @@
-import type { Piece, TailleRoue, TypeFrein } from "@/types/piece";
+import type { Compatibilites, Piece, TailleRoue, TypeFrein } from "@/types/piece";
 
 // Profil du vélo de l'utilisateur : chaque critère est facultatif.
 export interface Criteres {
@@ -77,4 +77,46 @@ export function valeursDisponibles(pieces: Piece[]) {
     ),
     vitesses: [...vitesses].sort((a, b) => a - b),
   };
+}
+
+const ordreTypesFrein = Object.keys(libellesTypesFrein) as TypeFrein[];
+
+// Compatibilités en langage clair, ex. { critere: "Freins", valeurs: "V-Brake, étrier" }.
+// Une liste vide signifie que la pièce convient à tous les vélos.
+export function decrireCompatibilites(
+  compatibilites: Compatibilites,
+): { critere: string; valeurs: string }[] {
+  const { taillesRoue, typesFrein, vitesses } = compatibilites;
+  const lignes = [];
+  if (taillesRoue) {
+    lignes.push({
+      critere: "Roues",
+      valeurs: enClair(trierSelon(taillesRoue, ordreTaillesRoue).map((t) => libellesTaillesRoue[t])),
+    });
+  }
+  if (typesFrein) {
+    lignes.push({
+      critere: "Freins",
+      valeurs: enClair(trierSelon(typesFrein, ordreTypesFrein).map((t) => libellesTypesFrein[t])),
+    });
+  }
+  if (vitesses) {
+    lignes.push({
+      critere: "Vitesses",
+      valeurs: enClair([...vitesses].sort((a, b) => a - b).map(String)),
+    });
+  }
+  return lignes;
+}
+
+function trierSelon<T>(valeurs: T[], ordre: T[]): T[] {
+  return ordre.filter((valeur) => valeurs.includes(valeur));
+}
+
+// Seul le premier libellé garde sa majuscule : « V-Brake, étrier ».
+// V-Brake étant premier dans l'ordre des freins, il n'est jamais mis en minuscules.
+function enClair(libelles: string[]): string {
+  return libelles
+    .map((libelle, i) => (i === 0 ? libelle : libelle.toLocaleLowerCase("fr-FR")))
+    .join(", ");
 }

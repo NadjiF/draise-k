@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import type { Categorie, Piece } from "@/types/piece";
 import {
+  cheminPiece,
   formaterPrix,
   getPiecesParCategorie,
   libellesCategories,
@@ -198,12 +199,22 @@ function ListePieces({ pieces, filtre = false }: { pieces: Piece[]; filtre?: boo
         {pieces.map((piece) => (
           <li
             key={piece.id}
-            className="flex flex-col gap-2 rounded-lg border border-black/[.08] p-4 dark:border-white/[.145]"
+            className="relative flex flex-col gap-2 rounded-lg border border-black/[.08] p-4 transition-colors hover:bg-black/[.04] has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 dark:border-white/[.145] dark:hover:bg-[#1a1a1a]"
           >
             <p className="text-xs uppercase tracking-wide text-zinc-500">
               {libellesCategories[piece.categorie]}
             </p>
-            <h2 className="font-medium">{piece.nom}</h2>
+            <h2 className="font-medium">
+              {/* Le pseudo-élément étend le lien à toute la carte : un seul arrêt
+                  au clavier par pièce, avec le nom de la pièce comme intitulé. */}
+              <Link
+                href={cheminPiece(piece)}
+                prefetch={true}
+                className="after:absolute after:inset-0 after:rounded-lg focus-visible:outline-none"
+              >
+                {piece.nom}
+              </Link>
+            </h2>
             <p className="flex-1 text-sm text-zinc-600 dark:text-zinc-400">
               {piece.description}
             </p>

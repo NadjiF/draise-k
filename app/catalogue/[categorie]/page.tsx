@@ -26,16 +26,14 @@ export default function CategoriePage({
   searchParams,
 }: PageProps<"/catalogue/[categorie]">) {
   return (
-    <main className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-8">
-      <Suspense>
-        {params.then(({ categorie }) =>
-          estCategorie(categorie) ? (
-            <Catalogue categorie={categorie} searchParams={searchParams} />
-          ) : (
-            notFound()
-          ),
-        )}
-      </Suspense>
-    </main>
+    <Suspense>
+      {params.then(({ categorie }) =>
+        estCategorie(categorie) ? (
+          <Catalogue categorie={categorie} searchParams={searchParams} />
+        ) : (
+          notFound()
+        ),
+      )}
+    </Suspense>
   );
 }
