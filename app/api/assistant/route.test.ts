@@ -1,7 +1,12 @@
 import { ApiError } from "@google/genai";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { POST } from "@/app/api/assistant/route";
-import { DELAI_MS, LONGUEUR_MAX_MESSAGE, QUESTION_PAR_DEFAUT } from "@/lib/assistant";
+import {
+  DELAI_MS,
+  LONGUEUR_MAX_MESSAGE,
+  MAX_ECHANGES,
+  QUESTION_PAR_DEFAUT,
+} from "@/lib/assistant";
 import { MAX_REQUETES } from "@/lib/limiteur";
 
 // Gemini est simulé : seule la classe GoogleGenAI est remplacée, le reste du SDK
@@ -261,6 +266,64 @@ describe("POST /api/assistant : devis", () => {
       "non_couvert",
       "hors_sujet",
     ]);
+  });
+});
+
+describe("POST /api/assistant : échanges précédents", () => {
+  const echange = { question: "Combien de vitesses a votre vélo ?", reponse: "9 vitesses" };
+
+  it.each([
+    ["échanges qui ne sont pas une liste", echange],
+    ["échange qui n'est pas un objet", ["9 vitesses"]],
+    ["réponse absente", [{ question: echange.question }]],
+    ["réponse vide", [{ ...echange, reponse: "  " }]],
+    ["question vide", [{ ...echange, question: "" }]],
+    ["question qui n'est pas du texte", [{ ...echange, question: 42 }]],
+    ["clé inconnue", [{ ...echange, role: "assistant" }]],
+    [`${MAX_ECHANGES + 1} échanges`, Array(MAX_ECHANGES + 1).fill(echange)],
+  ])("%s → 400", async (_, echanges) => {
+    const reponse = await POST(requete({ message: "Je veux changer ma chaîne", echanges }));
+    expect(reponse.status).toBe(400);
+    expect(await erreurDe(reponse)).toBe("requete_invalide");
+    expect(generateContent).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["réponse", { ...echange, reponse: "a".repeat(LONGUEUR_MAX_MESSAGE + 1) }],
+    ["question", { ...echange, question: "a".repeat(LONGUEUR_MAX_MESSAGE + 1) }],
+  ])(`${LONGUEUR_MAX_MESSAGE + 1} caractères dans la %s → 413`, async (_, trop) => {
+    const reponse = await POST(requete({ message: "Une chaîne", echanges: [trop] }));
+    expect(reponse.status).toBe(413);
+    expect(await erreurDe(reponse)).toBe("message_trop_long");
+    expect(generateContent).not.toHaveBeenCalled();
+  });
+
+  it(`${MAX_ECHANGES} échanges, ou null → acceptés`, async () => {
+    const echanges = Array(MAX_ECHANGES).fill(echange);
+    expect((await POST(requete({ message: "Une chaîne", echanges }))).status).toBe(200);
+    expect((await POST(requete({ message: "Une chaîne", echanges: null }))).status).toBe(200);
+  });
+
+  it("transmet au modèle la demande puis les échanges dans l'ordre", async () => {
+    await POST(
+      requete({
+        message: "Je veux changer ma chaîne",
+        echanges: [
+          { question: "  Combien de vitesses ?  ", reponse: " 9 " },
+          { question: "Quelle marque de dérailleur ?", reponse: "Shimano" },
+        ],
+      }),
+    );
+    const [{ contents }] = generateContent.mock.calls[0];
+    expect(contents).toMatch(
+      /Demande de l'utilisateur :\nJe veux changer ma chaîne\n\nÉchanges qui ont suivi la demande :\nTa question : Combien de vitesses \?\nRéponse de l'utilisateur : 9\n\nTa question : Quelle marque de dérailleur \?\nRéponse de l'utilisateur : Shimano$/,
+    );
+  });
+
+  it("sans échange, le contenu ne mentionne pas d'échanges", async () => {
+    await POST(requete({ message: "Je veux changer ma chaîne", echanges: [] }));
+    const [{ contents }] = generateContent.mock.calls[0];
+    expect(contents).not.toContain("Échanges");
   });
 });
 

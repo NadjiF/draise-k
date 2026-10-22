@@ -4,14 +4,16 @@ import {
   estObjet,
   interrogerModele,
   LONGUEUR_MAX_MESSAGE,
+  MAX_ECHANGES,
   QUESTION_PAR_DEFAUT,
+  validerEchanges,
   type CodeErreur,
 } from "@/lib/assistant";
 import { fusionnerCriteres, validerCriteres } from "@/lib/criteres";
 import { etablirDevis } from "@/lib/devis";
 import { limiter } from "@/lib/limiteur";
 
-// POST /api/assistant { message, criteres? } → devis calculé par le serveur.
+// POST /api/assistant { message, criteres?, echanges? } → devis calculé par le serveur.
 // Format de réponse et codes d'erreur : voir la section « Assistant » de CLAUDE.md.
 export async function POST(request: Request) {
   const limite = limiter(adresseClient(request));
@@ -35,8 +37,7 @@ export async function POST(request: Request) {
   if (!message) {
     return erreur(400, "requete_invalide", "Décrivez votre besoin.");
   }
-  // Compté en caractères, pas en unités UTF-16 (un emoji compte pour un).
-  if ([...message].length > LONGUEUR_MAX_MESSAGE) {
+  if (nbCaracteres(message) > LONGUEUR_MAX_MESSAGE) {
     return erreur(
       413,
       "message_trop_long",
@@ -49,9 +50,30 @@ export async function POST(request: Request) {
     return erreur(400, "requete_invalide", "Les critères du vélo sont invalides.");
   }
 
+  // Questions de l'assistant et réponses de l'utilisateur, renvoyées par le client.
+  const echanges = corps.echanges == null ? [] : validerEchanges(corps.echanges);
+  if (!echanges) {
+    return erreur(400, "requete_invalide", "Les échanges précédents sont invalides.");
+  }
+  if (echanges.length > MAX_ECHANGES) {
+    return erreur(
+      400,
+      "requete_invalide",
+      "Trop d’échanges pour une même demande : reformulez votre besoin depuis le début.",
+    );
+  }
+  const tropLong = (texte: string) => nbCaracteres(texte) > LONGUEUR_MAX_MESSAGE;
+  if (echanges.some(({ question, reponse }) => tropLong(question) || tropLong(reponse))) {
+    return erreur(
+      413,
+      "message_trop_long",
+      `Votre réponse dépasse ${LONGUEUR_MAX_MESSAGE} caractères.`,
+    );
+  }
+
   let reponse;
   try {
-    reponse = await interrogerModele(message, criteres);
+    reponse = await interrogerModele(message, criteres, echanges);
   } catch (e) {
     if (e instanceof ErreurAssistant) return erreur(e.statut, e.code, e.message);
     console.error("Erreur de l'assistant :", e);
@@ -91,6 +113,11 @@ export async function POST(request: Request) {
     criteres: effectifs,
     criteresDeduits: deduitsRetenus,
   });
+}
+
+// Compté en caractères, pas en unités UTF-16 (un emoji compte pour un).
+function nbCaracteres(texte: string): number {
+  return [...texte].length;
 }
 
 // Derrière un proxy, la première adresse de x-forwarded-for est celle du client.
