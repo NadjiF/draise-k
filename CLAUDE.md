@@ -14,8 +14,7 @@ This project runs **Next.js 16.4 / React 19.3**, newer than most training data. 
 - `npm run build` — production build (also type-checks)
 - `npm run start` — serve the production build
 - `npm run lint` — ESLint (flat config, `eslint-config-next` core-web-vitals + typescript)
-
-No test framework is configured yet.
+- `npm test` — Vitest (`*.test.ts` next to the code; `vitest.config.ts` mirrors the `@/*` alias). Vitest is pinned to `~4.0.18`: 4.1.12 triggers an npm bug (`Cannot read properties of null (reading 'edgesOut')`) on install.
 
 ## Architecture
 
@@ -29,3 +28,14 @@ Fresh `create-next-app` scaffold using the App Router only (`app/`, no `pages/` 
 - Tailwind CSS v4 is wired through Turbopack via the `@tailwindcss/turbopack` loader for `*.css` (no `tailwind.config` / PostCSS config). Theme tokens live in `app/globals.css` under `@theme inline`, with light/dark CSS variables on `:root`.
 
 `app/layout.tsx` uses the globally available `LayoutProps<"/">` type (generated route types) and loads Geist fonts via `next/font/google` as CSS variables.
+
+## Assistant
+
+The user describes a need in plain language; Gemini (`@google/genai`) picks parts **from the catalogue only**; the server validates the choice and computes the quote. The model is never trusted for ids, compatibility or prices.
+
+- Model output is forced to JSON by a schema: chosen parts (`id`, `quantite`, `raison`), an optional `question` when information is missing, a `message`, `nonCouvert` (needs the catalogue doesn't cover) and `criteresDeduits` (bike criteria read from the message, e.g. "28 pouces" → `700c`, "650b" → `27.5`).
+- `lib/criteres.ts`: `validerCriteres` checks criteria received as JSON (any unknown value → 400, unlike the URL parser which ignores it); `fusionnerCriteres` lets user-supplied criteria win over deduced ones and returns the deductions actually used, which are sent back to the UI so the user can see and correct them.
+- `lib/devis.ts`: `etablirDevis` is the only place prices are computed (integer cents, from `data/pieces.json`). It drops unknown ids, merges duplicates (quantity capped at `QUANTITE_MAX`), and moves parts that are incompatible with the effective criteria, or have an invalid quantity, to `ecartees` with a reason.
+- `lib/assistant.ts`: model instructions, JSON schema, `interrogerModele` (Gemini call, 15 s timeout, Gemini 429 → `quota_depasse`) and `lireReponse` (checks the model output's shape). Needs `GEMINI_API_KEY` (`.env.local`); `GEMINI_MODEL` overrides the default `gemini-flash-latest`. The SDK does not retry unless `retryOptions` is passed — keep it that way to save quota.
+- `app/api/assistant/route.ts`: `POST { message, criteres? }`. Order: rate limit (`lib/limiteur.ts`, 10 req/min per IP, in memory) → body validation (400; message > 1000 chars → 413) → model → `fusionnerCriteres` → `etablirDevis`. Success returns `{ message, question, lignes, totalCentimes, nonCouvert, ecartees, criteres, criteresDeduits }`; errors return `{ erreur: { code, message } }` (429 + `Retry-After`, 503 quota, 502 invalid output, 504 timeout, 500).
+- Tests (`app/api/assistant/route.test.ts`) never call Gemini: `vi.mock("@google/genai")` replaces only `GoogleGenAI` (real `ApiError` kept), and each test uses its own `x-forwarded-for` IP so the rate limit doesn't couple tests.

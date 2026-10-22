@@ -26,6 +26,18 @@ export const libellesTypesFrein: Record<TypeFrein, string> = {
   "disque-hydraulique": "Disque hydraulique",
 };
 
+export function estTailleRoue(valeur: unknown): valeur is TailleRoue {
+  return typeof valeur === "string" && Object.hasOwn(libellesTaillesRoue, valeur);
+}
+
+export function estTypeFrein(valeur: unknown): valeur is TypeFrein {
+  return typeof valeur === "string" && Object.hasOwn(libellesTypesFrein, valeur);
+}
+
+export function estNbVitesses(valeur: unknown): valeur is number {
+  return Number.isInteger(valeur) && (valeur as number) > 0;
+}
+
 type SearchParams = Record<string, string | string[] | undefined>;
 
 // Noms des paramètres d'URL : /catalogue/freinage?frein=v-brake
@@ -34,16 +46,52 @@ export function parserCriteres(searchParams: SearchParams): Criteres {
   const { taille, frein, vitesses } = searchParams;
   const nbVitesses = typeof vitesses === "string" ? Number(vitesses) : NaN;
   return {
-    tailleRoue:
-      typeof taille === "string" && Object.hasOwn(libellesTaillesRoue, taille)
-        ? (taille as TailleRoue)
-        : undefined,
-    typeFrein:
-      typeof frein === "string" && Object.hasOwn(libellesTypesFrein, frein)
-        ? (frein as TypeFrein)
-        : undefined,
-    vitesses: Number.isInteger(nbVitesses) && nbVitesses > 0 ? nbVitesses : undefined,
+    tailleRoue: estTailleRoue(taille) ? taille : undefined,
+    typeFrein: estTypeFrein(frein) ? frein : undefined,
+    vitesses: estNbVitesses(nbVitesses) ? nbVitesses : undefined,
   };
+}
+
+const clesCriteres = ["tailleRoue", "typeFrein", "vitesses"] as const;
+
+// Critères reçus en JSON (API de l'assistant). Contrairement à l'URL, toute valeur
+// inconnue invalide l'ensemble : renvoie null. `null` vaut critère absent.
+export function validerCriteres(valeur: unknown): Criteres | null {
+  if (typeof valeur !== "object" || valeur === null || Array.isArray(valeur)) return null;
+  const champs = valeur as Record<string, unknown>;
+  if (Object.keys(champs).some((cle) => !(clesCriteres as readonly string[]).includes(cle))) {
+    return null;
+  }
+  const { tailleRoue, typeFrein, vitesses } = champs;
+  const absent = (v: unknown) => v === undefined || v === null;
+  if (!absent(tailleRoue) && !estTailleRoue(tailleRoue)) return null;
+  if (!absent(typeFrein) && !estTypeFrein(typeFrein)) return null;
+  if (!absent(vitesses) && !estNbVitesses(vitesses)) return null;
+  return {
+    tailleRoue: estTailleRoue(tailleRoue) ? tailleRoue : undefined,
+    typeFrein: estTypeFrein(typeFrein) ? typeFrein : undefined,
+    vitesses: estNbVitesses(vitesses) ? vitesses : undefined,
+  };
+}
+
+// Les critères fournis par l'utilisateur l'emportent sur ceux déduits de son message.
+// `deduitsRetenus` ne garde que les déductions réellement utilisées, pour que
+// l'interface les affiche et permette de les corriger.
+export function fusionnerCriteres(
+  fournis: Criteres,
+  deduits: Criteres,
+): { effectifs: Criteres; deduitsRetenus: Criteres } {
+  const effectifs: Criteres = {};
+  const deduitsRetenus: Criteres = {};
+  for (const cle of clesCriteres) {
+    if (fournis[cle] !== undefined) {
+      Object.assign(effectifs, { [cle]: fournis[cle] });
+    } else if (deduits[cle] !== undefined) {
+      Object.assign(effectifs, { [cle]: deduits[cle] });
+      Object.assign(deduitsRetenus, { [cle]: deduits[cle] });
+    }
+  }
+  return { effectifs, deduitsRetenus };
 }
 
 export function aDesCriteres(criteres: Criteres): boolean {
@@ -53,11 +101,20 @@ export function aDesCriteres(criteres: Criteres): boolean {
 // Une pièce qui ne déclare pas un critère n'en dépend pas : elle reste affichée.
 export function filtrerPieces(pieces: Piece[], criteres: Criteres): Piece[] {
   return pieces.filter(
-    ({ compatibilites }) =>
-      accepte(compatibilites.taillesRoue, criteres.tailleRoue) &&
-      accepte(compatibilites.typesFrein, criteres.typeFrein) &&
-      accepte(compatibilites.vitesses, criteres.vitesses),
+    ({ compatibilites }) => criteresIncompatibles(compatibilites, criteres).length === 0,
   );
+}
+
+// Critères de l'utilisateur que la pièce n'accepte pas (vide si elle est compatible).
+export function criteresIncompatibles(
+  compatibilites: Compatibilites,
+  criteres: Criteres,
+): (keyof Criteres)[] {
+  const incompatibles: (keyof Criteres)[] = [];
+  if (!accepte(compatibilites.taillesRoue, criteres.tailleRoue)) incompatibles.push("tailleRoue");
+  if (!accepte(compatibilites.typesFrein, criteres.typeFrein)) incompatibles.push("typeFrein");
+  if (!accepte(compatibilites.vitesses, criteres.vitesses)) incompatibles.push("vitesses");
+  return incompatibles;
 }
 
 function accepte<T>(valeurs: T[] | undefined, choisie: T | undefined): boolean {
