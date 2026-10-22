@@ -1,0 +1,216 @@
+import Form from "next/form";
+import Link from "next/link";
+import { Suspense } from "react";
+import type { Categorie, Piece } from "@/types/piece";
+import {
+  formaterPrix,
+  getPiecesParCategorie,
+  libellesCategories,
+} from "@/lib/pieces";
+import {
+  type Criteres,
+  aDesCriteres,
+  filtrerPieces,
+  libellesTaillesRoue,
+  libellesTypesFrein,
+  parserCriteres,
+  valeursDisponibles,
+} from "@/lib/criteres";
+
+type SearchParams = PageProps<"/catalogue">["searchParams"];
+
+// La catégorie vient du chemin : la page est prérendue en entier, liste comprise,
+// et reste lisible sans JavaScript. Les critères secondaires viennent de l'URL
+// (?taille=29) et ne peuvent être lus qu'à la requête : le fallback de la Suspense
+// affiche donc la liste non filtrée, et c'est ce que voit un navigateur sans JS.
+export function Catalogue({
+  categorie,
+  searchParams,
+}: {
+  categorie?: Categorie;
+  searchParams: SearchParams;
+}) {
+  return (
+    <>
+      <h1 className="text-3xl font-semibold tracking-tight">
+        {categorie ? libellesCategories[categorie] : "Catalogue"}
+      </h1>
+      <NavCategories actif={categorie} />
+      <Suspense fallback={<ListePieces pieces={getPiecesParCategorie(categorie)} />}>
+        <ResultatsFiltres categorie={categorie} searchParams={searchParams} />
+      </Suspense>
+    </>
+  );
+}
+
+async function ResultatsFiltres({
+  categorie,
+  searchParams,
+}: {
+  categorie?: Categorie;
+  searchParams: SearchParams;
+}) {
+  const criteres = parserCriteres(await searchParams);
+  return <ResultatsEnCache categorie={categorie} criteres={criteres} />;
+}
+
+// Mis en cache par (catégorie, critères) : un lien prefetch={true} récupère ce
+// résultat avant le clic.
+async function ResultatsEnCache({
+  categorie,
+  criteres,
+}: {
+  categorie?: Categorie;
+  criteres: Criteres;
+}) {
+  "use cache";
+  const pieces = getPiecesParCategorie(categorie);
+  return (
+    <>
+      <FormulaireCriteres categorie={categorie} pieces={pieces} criteres={criteres} />
+      <ListePieces pieces={filtrerPieces(pieces, criteres)} filtre={aDesCriteres(criteres)} />
+    </>
+  );
+}
+
+function cheminCategorie(categorie?: Categorie): string {
+  return categorie ? `/catalogue/${categorie}` : "/catalogue";
+}
+
+const categories = Object.keys(libellesCategories) as Categorie[];
+
+function NavCategories({ actif }: { actif?: Categorie }) {
+  const liens = [
+    { href: cheminCategorie(), libelle: "Toutes", estActif: actif === undefined },
+    ...categories.map((categorie) => ({
+      href: cheminCategorie(categorie),
+      libelle: libellesCategories[categorie],
+      estActif: actif === categorie,
+    })),
+  ];
+
+  return (
+    <nav aria-label="Catégories" className="mt-6">
+      <ul className="flex flex-wrap gap-2">
+        {liens.map(({ href, libelle, estActif }) => (
+          <li key={href}>
+            <Link
+              href={href}
+              prefetch={true}
+              aria-current={estActif ? "page" : undefined}
+              className="inline-block rounded-full border border-black/[.08] px-4 py-1.5 text-sm transition-colors hover:bg-black/[.04] aria-[current=page]:border-transparent aria-[current=page]:bg-foreground aria-[current=page]:text-background dark:border-white/[.145] dark:hover:bg-[#1a1a1a]"
+            >
+              {libelle}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
+
+const classeSelect =
+  "rounded-md border border-black/[.08] bg-background px-3 py-1.5 text-sm dark:border-white/[.145]";
+
+function FormulaireCriteres({
+  categorie,
+  pieces,
+  criteres,
+}: {
+  categorie?: Categorie;
+  pieces: Piece[];
+  criteres: Criteres;
+}) {
+  const { taillesRoue, typesFrein, vitesses } = valeursDisponibles(pieces);
+  if (taillesRoue.length + typesFrein.length + vitesses.length === 0) return null;
+
+  return (
+    // key : les defaultValue doivent suivre l'URL après une navigation client.
+    <Form
+      key={JSON.stringify(criteres)}
+      action={cheminCategorie(categorie)}
+      aria-label="Compatibilité avec mon vélo"
+      className="mt-6 flex flex-wrap items-end gap-4"
+    >
+      {taillesRoue.length > 0 && (
+        <label className="flex flex-col gap-1 text-sm">
+          Taille de roue
+          <select name="taille" defaultValue={criteres.tailleRoue ?? ""} className={classeSelect}>
+            <option value="">Toutes</option>
+            {taillesRoue.map((taille) => (
+              <option key={taille} value={taille}>
+                {libellesTaillesRoue[taille]}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
+      {typesFrein.length > 0 && (
+        <label className="flex flex-col gap-1 text-sm">
+          Type de frein
+          <select name="frein" defaultValue={criteres.typeFrein ?? ""} className={classeSelect}>
+            <option value="">Tous</option>
+            {typesFrein.map((type) => (
+              <option key={type} value={type}>
+                {libellesTypesFrein[type]}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
+      {vitesses.length > 0 && (
+        <label className="flex flex-col gap-1 text-sm">
+          Vitesses
+          <select name="vitesses" defaultValue={criteres.vitesses ?? ""} className={classeSelect}>
+            <option value="">Toutes</option>
+            {vitesses.map((nb) => (
+              <option key={nb} value={nb}>
+                {nb} vitesses
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
+      <button
+        type="submit"
+        className="rounded-full bg-foreground px-4 py-1.5 text-sm text-background"
+      >
+        Filtrer
+      </button>
+      {aDesCriteres(criteres) && (
+        <Link href={cheminCategorie(categorie)} prefetch={true} className="py-1.5 text-sm underline">
+          Réinitialiser
+        </Link>
+      )}
+    </Form>
+  );
+}
+
+function ListePieces({ pieces, filtre = false }: { pieces: Piece[]; filtre?: boolean }) {
+  const pluriel = pieces.length > 1 ? "s" : "";
+  return (
+    <>
+      <p className="mt-6 text-sm text-zinc-600 dark:text-zinc-400" aria-live="polite">
+        {pieces.length} pièce{pluriel}
+        {filtre && ` compatible${pluriel}`}
+      </p>
+      <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {pieces.map((piece) => (
+          <li
+            key={piece.id}
+            className="flex flex-col gap-2 rounded-lg border border-black/[.08] p-4 dark:border-white/[.145]"
+          >
+            <p className="text-xs uppercase tracking-wide text-zinc-500">
+              {libellesCategories[piece.categorie]}
+            </p>
+            <h2 className="font-medium">{piece.nom}</h2>
+            <p className="flex-1 text-sm text-zinc-600 dark:text-zinc-400">
+              {piece.description}
+            </p>
+            <p className="font-semibold">{formaterPrix(piece.prixCentimes)}</p>
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+}
