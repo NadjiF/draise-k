@@ -31,15 +31,6 @@ export function getPiecesParCategorie(categorie?: Categorie): Piece[] {
     : pieces;
 }
 
-const formatPrix = new Intl.NumberFormat("fr-FR", {
-  style: "currency",
-  currency: "EUR",
-});
-
-export function formaterPrix(prixCentimes: number): string {
-  return formatPrix.format(prixCentimes / 100);
-}
-
 export function cheminPiece(piece: Piece): string {
   return `/catalogue/${piece.categorie}/${piece.id}`;
 }

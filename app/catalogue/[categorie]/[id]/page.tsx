@@ -3,7 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import type { Piece } from "@/types/piece";
-import { formaterPrix, getPieceById, getPieces, libellesCategories } from "@/lib/pieces";
+import { getPieceById, getPieces, libellesCategories } from "@/lib/pieces";
+import { formaterPrix } from "@/lib/prix";
 import { decrireCompatibilites } from "@/lib/criteres";
 
 // Les 25 fiches sont prérendues au build.

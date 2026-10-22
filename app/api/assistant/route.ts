@@ -12,6 +12,7 @@ import {
 import { fusionnerCriteres, validerCriteres } from "@/lib/criteres";
 import { etablirDevis } from "@/lib/devis";
 import { limiter } from "@/lib/limiteur";
+import type { ErreurApi, ReponseAssistant } from "@/types/assistant";
 
 // POST /api/assistant { message, criteres?, echanges? } → devis calculé par le serveur.
 // Format de réponse et codes d'erreur : voir la section « Assistant » de CLAUDE.md.
@@ -88,14 +89,16 @@ export async function POST(request: Request) {
 
   // Une réponse incohérente devient une question : l'utilisateur garde le message du
   // modèle et a toujours quelque chose à répondre.
-  const coherente = estCoherente(reponse.intention, {
+  // Variable locale : TypeScript ne restreint pas reponse.intention via `coherente`.
+  const { intention } = reponse;
+  const coherente = estCoherente(intention, {
     question: reponse.question,
     nbLignes: devis.lignes.length,
     nonCouvert: reponse.nonCouvert,
   });
   if (!coherente) {
     console.warn("Réponse incohérente du modèle, traitée comme une question :", {
-      intention: reponse.intention,
+      intention,
       question: reponse.question,
       lignes: devis.lignes.length,
       nonCouvert: reponse.nonCouvert,
@@ -103,7 +106,7 @@ export async function POST(request: Request) {
   }
 
   return Response.json({
-    intention: coherente ? reponse.intention : "question",
+    intention: coherente ? intention : "question",
     message: reponse.message,
     question: coherente ? reponse.question : (reponse.question ?? QUESTION_PAR_DEFAUT),
     lignes: devis.lignes,
@@ -112,7 +115,7 @@ export async function POST(request: Request) {
     ecartees: devis.ecartees,
     criteres: effectifs,
     criteresDeduits: deduitsRetenus,
-  });
+  } satisfies ReponseAssistant);
 }
 
 // Compté en caractères, pas en unités UTF-16 (un emoji compte pour un).
@@ -132,5 +135,8 @@ function erreur(
   message: string,
   enTetes?: Record<string, string>,
 ) {
-  return Response.json({ erreur: { code, message } }, { status: statut, headers: enTetes });
+  return Response.json({ erreur: { code, message } } satisfies ErreurApi, {
+    status: statut,
+    headers: enTetes,
+  });
 }

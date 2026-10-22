@@ -2,12 +2,8 @@ import Form from "next/form";
 import Link from "next/link";
 import { Suspense } from "react";
 import type { Categorie, Piece } from "@/types/piece";
-import {
-  cheminPiece,
-  formaterPrix,
-  getPiecesParCategorie,
-  libellesCategories,
-} from "@/lib/pieces";
+import { cheminPiece, getPiecesParCategorie, libellesCategories } from "@/lib/pieces";
+import { formaterPrix } from "@/lib/prix";
 import {
   type Criteres,
   aDesCriteres,
