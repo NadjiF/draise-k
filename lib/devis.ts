@@ -1,10 +1,5 @@
 import type { Categorie, Piece } from "@/types/piece";
-import {
-  criteresIncompatibles,
-  libellesTaillesRoue,
-  libellesTypesFrein,
-  type Criteres,
-} from "@/lib/criteres";
+import { criteresIncompatibles, decrireCritere, type Criteres } from "@/lib/criteres";
 import { cheminPiece, getPieces } from "@/lib/pieces";
 
 export const QUANTITE_MAX = 10;
@@ -102,15 +97,4 @@ export function etablirDevis(
     ecartees: [...ecartees.values()],
     idsInconnus,
   };
-}
-
-function decrireCritere(critere: keyof Criteres, criteres: Criteres): string {
-  switch (critere) {
-    case "tailleRoue":
-      return `roues ${libellesTaillesRoue[criteres.tailleRoue!]}`;
-    case "typeFrein":
-      return `freins ${libellesTypesFrein[criteres.typeFrein!]}`;
-    case "vitesses":
-      return `${criteres.vitesses} vitesses`;
-  }
 }

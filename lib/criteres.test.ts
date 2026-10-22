@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { fusionnerCriteres, parserCriteres, validerCriteres } from "@/lib/criteres";
+import {
+  decrireCriteres,
+  fusionnerCriteres,
+  parserCriteres,
+  validerCriteres,
+} from "@/lib/criteres";
 
 describe("validerCriteres", () => {
   it("accepte des critères complets ou partiels", () => {
@@ -37,6 +42,16 @@ describe("parserCriteres", () => {
       typeFrein: "v-brake",
       vitesses: 9,
     });
+  });
+});
+
+describe("decrireCriteres", () => {
+  it("décrit les critères renseignés dans un ordre fixe", () => {
+    expect(
+      decrireCriteres({ vitesses: 9, typeFrein: "v-brake", tailleRoue: "700c" }),
+    ).toBe("roues 700c (route), freins V-Brake, 9 vitesses");
+    expect(decrireCriteres({ vitesses: 10 })).toBe("10 vitesses");
+    expect(decrireCriteres({})).toBe("");
   });
 });
 

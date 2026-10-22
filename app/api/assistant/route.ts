@@ -1,8 +1,10 @@
 import {
   ErreurAssistant,
+  estCoherente,
   estObjet,
   interrogerModele,
   LONGUEUR_MAX_MESSAGE,
+  QUESTION_PAR_DEFAUT,
   type CodeErreur,
 } from "@/lib/assistant";
 import { fusionnerCriteres, validerCriteres } from "@/lib/criteres";
@@ -62,9 +64,26 @@ export async function POST(request: Request) {
     console.warn("Ids inconnus proposés par le modèle :", devis.idsInconnus);
   }
 
-  return Response.json({
-    message: reponse.message,
+  // Une réponse incohérente devient une question : l'utilisateur garde le message du
+  // modèle et a toujours quelque chose à répondre.
+  const coherente = estCoherente(reponse.intention, {
     question: reponse.question,
+    nbLignes: devis.lignes.length,
+    nonCouvert: reponse.nonCouvert,
+  });
+  if (!coherente) {
+    console.warn("Réponse incohérente du modèle, traitée comme une question :", {
+      intention: reponse.intention,
+      question: reponse.question,
+      lignes: devis.lignes.length,
+      nonCouvert: reponse.nonCouvert,
+    });
+  }
+
+  return Response.json({
+    intention: coherente ? reponse.intention : "question",
+    message: reponse.message,
+    question: coherente ? reponse.question : (reponse.question ?? QUESTION_PAR_DEFAUT),
     lignes: devis.lignes,
     totalCentimes: devis.totalCentimes,
     nonCouvert: reponse.nonCouvert,

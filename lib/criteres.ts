@@ -105,6 +105,26 @@ export function filtrerPieces(pieces: Piece[], criteres: Criteres): Piece[] {
   );
 }
 
+// Ex. « roues 26 pouces », « freins Disque hydraulique », « 10 vitesses ».
+export function decrireCritere(critere: keyof Criteres, criteres: Criteres): string {
+  switch (critere) {
+    case "tailleRoue":
+      return `roues ${libellesTaillesRoue[criteres.tailleRoue!]}`;
+    case "typeFrein":
+      return `freins ${libellesTypesFrein[criteres.typeFrein!]}`;
+    case "vitesses":
+      return `${criteres.vitesses} vitesses`;
+  }
+}
+
+// Tous les critères renseignés, ex. « roues 26 pouces, 10 vitesses ».
+export function decrireCriteres(criteres: Criteres): string {
+  return clesCriteres
+    .filter((cle) => criteres[cle] !== undefined)
+    .map((cle) => decrireCritere(cle, criteres))
+    .join(", ");
+}
+
 // Critères de l'utilisateur que la pièce n'accepte pas (vide si elle est compatible).
 export function criteresIncompatibles(
   compatibilites: Compatibilites,
