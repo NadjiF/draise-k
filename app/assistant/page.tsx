@@ -13,8 +13,8 @@ export const metadata: Metadata = {
 export default function AssistantPage() {
   return (
     <>
-      <h1 className="text-3xl font-semibold tracking-tight">Assistant</h1>
-      <p className="mt-4 max-w-2xl text-zinc-600 dark:text-zinc-400">
+      <h1 className="text-3xl font-semibold tracking-tight text-primaire">Assistant</h1>
+      <p className="mt-4 max-w-2xl text-texte-doux">
         Décrivez ce que vous cherchez : l’assistant choisit les pièces dans le catalogue et le
         site calcule le devis. S’il lui manque une information, il vous pose une question.
       </p>

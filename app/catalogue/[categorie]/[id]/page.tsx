@@ -40,6 +40,8 @@ export default function PiecePage({ params }: PageProps<"/catalogue/[categorie]/
   );
 }
 
+const classeLien = "text-primaire underline underline-offset-2 hover:text-primaire-survol";
+
 function FichePiece({ piece }: { piece: Piece }) {
   const libelleCategorie = libellesCategories[piece.categorie];
   const cheminCategorie = `/catalogue/${piece.categorie}`;
@@ -47,16 +49,16 @@ function FichePiece({ piece }: { piece: Piece }) {
 
   return (
     <article>
-      <nav aria-label="Fil d’Ariane" className="text-sm text-zinc-600 dark:text-zinc-400">
+      <nav aria-label="Fil d’Ariane" className="text-sm text-texte-doux">
         <ol className="flex flex-wrap gap-2">
           <li>
-            <Link href="/catalogue" className="underline">
+            <Link href="/catalogue" className={classeLien}>
               Catalogue
             </Link>
           </li>
           <li aria-hidden="true">›</li>
           <li>
-            <Link href={cheminCategorie} prefetch={true} className="underline">
+            <Link href={cheminCategorie} prefetch={true} className={classeLien}>
               {libelleCategorie}
             </Link>
           </li>
@@ -65,12 +67,14 @@ function FichePiece({ piece }: { piece: Piece }) {
         </ol>
       </nav>
 
-      <p className="mt-8 text-xs uppercase tracking-wide text-zinc-500">{libelleCategorie}</p>
-      <h1 className="mt-1 text-3xl font-semibold tracking-tight">{piece.nom}</h1>
+      <p className="mt-8 text-xs uppercase tracking-wide text-texte-doux">{libelleCategorie}</p>
+      <h1 className="mt-1 text-3xl font-semibold tracking-tight text-primaire">{piece.nom}</h1>
       <p className="mt-4 text-2xl font-semibold">{formaterPrix(piece.prixCentimes)}</p>
-      <p className="mt-6 max-w-2xl text-zinc-600 dark:text-zinc-400">{piece.description}</p>
+      <p className="mt-6 max-w-2xl text-texte-doux">{piece.description}</p>
 
-      <h2 className="mt-10 text-xl font-semibold">Compatibilités</h2>
+      <h2 className="mt-10 border-t border-cuivre/40 pt-8 text-xl font-semibold text-primaire">
+        Compatibilités
+      </h2>
       {compatibilites.length > 0 ? (
         <dl className="mt-4 grid grid-cols-[max-content_1fr] gap-x-2 gap-y-2">
           {compatibilites.map(({ critere, valeurs }) => (
@@ -85,7 +89,7 @@ function FichePiece({ piece }: { piece: Piece }) {
       )}
 
       <p className="mt-10">
-        <Link href={cheminCategorie} prefetch={true} className="underline">
+        <Link href={cheminCategorie} prefetch={true} className={classeLien}>
           <span aria-hidden="true">← </span>Retour à {libelleCategorie}
         </Link>
       </p>

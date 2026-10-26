@@ -29,7 +29,7 @@ export function Catalogue({
 }) {
   return (
     <>
-      <h1 className="text-3xl font-semibold tracking-tight">
+      <h1 className="text-3xl font-semibold tracking-tight text-primaire">
         {categorie ? libellesCategories[categorie] : "Catalogue"}
       </h1>
       <NavCategories actif={categorie} />
@@ -95,7 +95,7 @@ function NavCategories({ actif }: { actif?: Categorie }) {
               href={href}
               prefetch={true}
               aria-current={estActif ? "page" : undefined}
-              className="inline-block rounded-full border border-black/[.08] px-4 py-1.5 text-sm transition-colors hover:bg-black/[.04] aria-[current=page]:border-transparent aria-[current=page]:bg-foreground aria-[current=page]:text-background dark:border-white/[.145] dark:hover:bg-[#1a1a1a]"
+              className="inline-block rounded-full border border-texte-doux/30 px-4 py-1.5 text-sm transition-colors hover:bg-surface-alt aria-[current=page]:border-transparent aria-[current=page]:bg-primaire aria-[current=page]:text-sur-primaire"
             >
               {libelle}
             </Link>
@@ -107,7 +107,7 @@ function NavCategories({ actif }: { actif?: Categorie }) {
 }
 
 const classeSelect =
-  "rounded-md border border-black/[.08] bg-background px-3 py-1.5 text-sm dark:border-white/[.145]";
+  "rounded-md border border-texte-doux bg-surface px-3 py-1.5 text-sm";
 
 function FormulaireCriteres({
   categorie,
@@ -170,12 +170,16 @@ function FormulaireCriteres({
       )}
       <button
         type="submit"
-        className="rounded-full bg-foreground px-4 py-1.5 text-sm text-background"
+        className="rounded-full bg-primaire px-4 py-1.5 text-sm text-sur-primaire transition-colors hover:bg-primaire-survol"
       >
         Filtrer
       </button>
       {aDesCriteres(criteres) && (
-        <Link href={cheminCategorie(categorie)} prefetch={true} className="py-1.5 text-sm underline">
+        <Link
+          href={cheminCategorie(categorie)}
+          prefetch={true}
+          className="py-1.5 text-sm text-primaire underline underline-offset-2 hover:text-primaire-survol"
+        >
           Réinitialiser
         </Link>
       )}
@@ -187,7 +191,7 @@ function ListePieces({ pieces, filtre = false }: { pieces: Piece[]; filtre?: boo
   const pluriel = pieces.length > 1 ? "s" : "";
   return (
     <>
-      <p className="mt-6 text-sm text-zinc-600 dark:text-zinc-400" aria-live="polite">
+      <p className="mt-6 text-sm text-texte-doux" aria-live="polite">
         {pieces.length} pièce{pluriel}
         {filtre && ` compatible${pluriel}`}
       </p>
@@ -195,12 +199,12 @@ function ListePieces({ pieces, filtre = false }: { pieces: Piece[]; filtre?: boo
         {pieces.map((piece) => (
           <li
             key={piece.id}
-            className="relative flex flex-col gap-2 rounded-lg border border-black/[.08] p-4 transition-colors hover:bg-black/[.04] has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 dark:border-white/[.145] dark:hover:bg-[#1a1a1a]"
+            className="relative flex flex-col gap-2 rounded-lg border border-cuivre/50 bg-surface p-4 transition-[border-color,box-shadow] hover:border-cuivre hover:shadow-md hover:shadow-cuivre/15 has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 has-[a:focus-visible]:outline-primaire"
           >
-            <p className="text-xs uppercase tracking-wide text-zinc-500">
+            <p className="text-xs uppercase tracking-wide text-texte-doux">
               {libellesCategories[piece.categorie]}
             </p>
-            <h2 className="font-medium">
+            <h2 className="font-medium text-primaire">
               {/* Le pseudo-élément étend le lien à toute la carte : un seul arrêt
                   au clavier par pièce, avec le nom de la pièce comme intitulé. */}
               <Link
@@ -211,7 +215,7 @@ function ListePieces({ pieces, filtre = false }: { pieces: Piece[]; filtre?: boo
                 {piece.nom}
               </Link>
             </h2>
-            <p className="flex-1 text-sm text-zinc-600 dark:text-zinc-400">
+            <p className="flex-1 text-sm text-texte-doux">
               {piece.description}
             </p>
             <p className="font-semibold">{formaterPrix(piece.prixCentimes)}</p>

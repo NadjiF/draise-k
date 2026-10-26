@@ -1,31 +1,79 @@
 @import "tailwindcss";
 
+/* Palette : chaque couleur est définie une seule fois ici, en variante claire puis sombre
+   (light-dark), puis utilisée via les classes Tailwind générées par @theme (bg-fond,
+   text-texte-doux, border-cuivre…). Le cuivre ne sert qu'aux encadrements, jamais au texte. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --fond: light-dark(#faf7f2, #181513);
+  --surface: light-dark(#fffdf9, #211d1a);
+  --surface-alt: light-dark(#f1ece4, #2b2622);
+  --texte: light-dark(#2a2521, #eee8e1);
+  --texte-doux: light-dark(#665d54, #aba196);
+  --primaire: light-dark(#1b4f5c, #7dbfce);
+  --primaire-survol: light-dark(#143d47, #9dd0dc);
+  --sur-primaire: light-dark(#ffffff, #0f2930);
+  --entete: light-dark(#1b4f5c, #12343d);
+  --sur-entete: light-dark(#ffffff, #eee8e1);
+  --cuivre: light-dark(#b87333, #c98b52);
+  --erreur: light-dark(#9e2f1e, #f0a898);
+  --erreur-fond: light-dark(#fbece8, #3a201a);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* color-scheme choisit la variante de light-dark() (et celle des contrôles natifs) :
+   le réglage du système par défaut, ou le choix du bouton de thème (data-theme sur <html>,
+   posé avant l'affichage par le script de app/theme.ts). */
+:root {
+  color-scheme: light dark;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* dark: suit le mode affiché (choix mémorisé, sinon système), pas seulement le système.
+   Réservé à ce qui ne passe pas par les variables, comme l'icône du bouton de thème. */
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]), :root:not([data-theme="light"]) *) {
+      @slot;
+    }
   }
 }
 
-:focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: 2px;
+@theme inline {
+  --color-fond: var(--fond);
+  --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-alt);
+  --color-texte: var(--texte);
+  --color-texte-doux: var(--texte-doux);
+  --color-primaire: var(--primaire);
+  --color-primaire-survol: var(--primaire-survol);
+  --color-sur-primaire: var(--sur-primaire);
+  --color-entete: var(--entete);
+  --color-sur-entete: var(--sur-entete);
+  --color-cuivre: var(--cuivre);
+  --color-erreur: var(--erreur);
+  --color-erreur-fond: var(--erreur-fond);
+  --font-sans: var(--font-inter);
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Dans la couche base : hors couche, ces règles l'emporteraient sur les classes Tailwind
+   (ex. le contour clair de l'en-tête, dont le fond est du primaire). */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--primaire);
+    outline-offset: 2px;
+  }
+
+  body {
+    background: var(--fond);
+    color: var(--texte);
+  }
 }

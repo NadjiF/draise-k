@@ -1,16 +1,12 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import Link from "next/link";
 import { EnTete } from "./en-tete";
+import { scriptTheme } from "./theme";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
@@ -24,14 +20,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="fr"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
+    // suppressHydrationWarning : le script de <head> peut poser data-theme avant l'hydratation.
+    <html lang="fr" className={`${inter.variable} h-full antialiased`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: scriptTheme }} />
+      </head>
       <body className="min-h-full flex flex-col">
         <a
           href="#contenu"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-10 focus:rounded-md focus:bg-foreground focus:px-4 focus:py-2 focus:text-background"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-10 focus:rounded-md focus:bg-primaire focus:px-4 focus:py-2 focus:text-sur-primaire"
         >
           Aller au contenu
         </a>
@@ -39,11 +36,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <main id="contenu" className="mx-auto w-full max-w-5xl flex-1 px-4 py-12 sm:px-8">
           {children}
         </main>
-        <footer className="border-t border-black/[.08] dark:border-white/[.145]">
-          <p className="mx-auto max-w-5xl px-4 py-6 text-sm text-zinc-600 sm:px-8 dark:text-zinc-400">
+        <footer className="border-t border-cuivre/40">
+          <p className="mx-auto max-w-5xl px-4 py-6 text-sm text-texte-doux sm:px-8">
             La Draise-K est un projet de démonstration : les pièces et les prix sont fictifs,
             rien n’est à vendre.{" "}
-            <Link href="/a-propos" className="underline">
+            <Link
+              href="/a-propos"
+              className="text-primaire underline underline-offset-2 hover:text-primaire-survol"
+            >
               En savoir plus
             </Link>
           </p>

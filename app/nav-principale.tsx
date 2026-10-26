@@ -28,7 +28,7 @@ export function LiensNav({ pathname }: { pathname?: string }) {
           <Link
             href={href}
             aria-current={pathname !== undefined && estActif(href, pathname) ? "page" : undefined}
-            className="inline-block rounded-md px-3 py-1.5 text-sm transition-colors hover:bg-black/[.04] aria-[current=page]:font-semibold aria-[current=page]:underline aria-[current=page]:underline-offset-4 dark:hover:bg-[#1a1a1a]"
+            className="inline-block rounded-md px-3 py-1.5 text-sm transition-colors hover:bg-sur-entete/10 aria-[current=page]:font-semibold aria-[current=page]:underline aria-[current=page]:underline-offset-4"
           >
             {libelle}
           </Link>
